@@ -48,6 +48,7 @@
               pkgs.gitleaks
               pkgs.statix
               pkgs.deadnix
+              pkgs.act
 
               # python dependency
               pkgsPython3.python3
