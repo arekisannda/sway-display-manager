@@ -25,26 +25,43 @@ The configuration file can be specified with the `-c/--config` option; otherwise
 ### Example
 
 ```yaml
+# optional section to define anchors; only the profiles section will be parsed
+displays:
+  uw-side: &uw-side
+    name: "Samsung Electric Company LC48G95T H4ZR601140"
+    mode: &uw-side-mode
+      width: 1760
+      height: 1440
+      refresh: 60
+      scale: 1.0
+
+  uw-main: &uw-main
+    name: "Samsung Electric Company LC48G95T H4ZR601140"
+    mode: &uw-main-mode
+      width: 3360
+      height: 1440
+      refresh: 60
+      scale: 1.0
+
+  fw13: &fw13
+    name: "eDP-1"
+    mode: &fw13-mode
+      width: 2256
+      height: 1504
+      refresh: 60
+      scale: 1.2
+
+# required section that will be parsed by swaydm
 profiles:
   - name: home
     displays:
-      - name: "Samsung Electric Company LC49G95T H4ZR601140"
+      - <<: *uw-side
         alias: SIDE_OUTPUT
-        mode:
-          width: 1760
-          height: 1440
-          refresh: 60
-          scale: 1.0
         position:
           x: 0
           y: 0
-      - name: "Samsung Electric Company LC49G95T H4ZR601140"
+      - <<: *uw-main
         alias: MAIN_OUTPUT
-        mode:
-          width: 3360
-          height: 1440
-          refresh: 60
-          scale: 1.0
         position:
           x: 1760
           y: 0
@@ -53,38 +70,28 @@ profiles:
       - "workspace number 1, move workspace to output {MAIN_OUTPUT}"
       - "workspace number 1"
 
-  - name: home-manual-select
+  - name: high-refresh
     auto: false
     displays:
-      - name: "Samsung Electric Company LC49G95T H4ZR601140"
-        alias: SIDE_OUTPUT
+      - <<: *uw-side
         mode:
-          width: 1760
-          height: 1440
-          refresh: 60
-          scale: 1.0
+          <<: *uw-side-mode
+          refresh: 120
         position:
           x: 0
           y: 0
-      - name: "Samsung Electric Company LC49G95T H4ZR601140"
-        alias: MAIN_OUTPUT
+      - <<: *uw-main
         mode:
-          width: 3360
-          height: 1440
-          refresh: 60
-          scale: 1.0
+          <<: *uw-main-mode
+          refresh: 120
         position:
           x: 1760
           y: 0
+      - name: "eDP-1"
 
   - name: laptop
     displays:
-      - name: "eDP-1"
-        mode:
-          width: 2256
-          height: 1504
-          refresh: 60
-          scale: 1.0
+      - <<: *fw13
         position:
           x: 0
           y: 0
