@@ -4,13 +4,13 @@ from i3ipc import OutputReply
 
 from . import utils
 from .datatypes import (
-    ApplyProfile,
+    FALLBACK,
     ApplyOutput,
+    ApplyProfile,
     Config,
-    Profile,
     Mode,
     Position,
-    FALLBACK,
+    Profile,
 )
 
 
@@ -71,7 +71,7 @@ def get_profile_output_mapping(
     result: list[ApplyOutput] = []
 
     for ind, display in enumerate(profile.displays):
-        chosen: Optional[dict] = None
+        chosen: Optional[OutputReply] = None
         if display.mode is None:
             continue
 
@@ -80,7 +80,9 @@ def get_profile_output_mapping(
                 utils.trace(f"Skip {output.name} is used")
                 continue
             if not matches_display_name(output, display.name):
-                utils.trace(f"{display.name!r}:{ind} does not match an output")
+                utils.trace(
+                    f"{display.name!r}:{ind} does not match output {output.name!r}"
+                )
                 continue
             if display.mode is not None and not matches_display_mode(
                 output, display.mode
@@ -98,7 +100,7 @@ def get_profile_output_mapping(
         if chosen is None:
             raise ValueError(
                 f"No sway output matches display {display.name!r} "
-                f"with the requested mode"
+                f"with the requested mode {display.mode}"
             )
 
         used.add(chosen.name)

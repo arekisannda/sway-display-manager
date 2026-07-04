@@ -201,13 +201,17 @@ def on_config_reload_event(_ipc: Connection, _event: IpcBaseEvent) -> None:
     apply_profile_auto_select()
 
 
-def start_watcher(config_file_path: Optional[Path]) -> None:
+def start_watcher(config_file_path: Optional[Path], debug: bool) -> None:
     mgr.load_config(config_file_path)
+
     mgr.ipc.on(Event.BARCONFIG_UPDATE, on_config_reload_event)
     mgr.ipc.on(Event.OUTPUT, on_output_event)
     mgr.update_output_state(mgr.ipc.get_outputs())
 
-    apply_profile_auto_select()
+    if debug:
+        mgr.disable_auto_apply()
+    else:
+        apply_profile_auto_select()
 
     if config_file_path:
         utils.debug(
