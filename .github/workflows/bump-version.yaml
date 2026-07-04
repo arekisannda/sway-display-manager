@@ -51,7 +51,7 @@ jobs:
         run: uv version "$VERSION"
 
       - name: Update Nix package version
-        run: sed -i -E 's/version = "[^"]*";$/version = "$VERSION";/' default.nix
+        run: sed -i -E 's/version = "[^"]*";$/version = "${{ env.VERSION }}";/' default.nix
 
       - name: Open version bump PR
         id: bump_pr
