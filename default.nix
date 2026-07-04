@@ -7,7 +7,7 @@ with python3Packages;
 
 buildPythonPackage {
   pname = "sway-display-manager";
-  version = "0.0.2";
+  version = "$VERSION";
 
   inherit src;
 
