@@ -1,33 +1,37 @@
-name: Tag version on release branch merge
+name: Auto tag on version bump
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
+    paths:
+      - pyproject.toml
 
 permissions:
   contents: write
 
 jobs:
   tag-version:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
+      - name: Setup
+        uses: ./.github/actions/python-uv-env
         with:
-          fetch-depth: 0
           ref: main
+          fetch-depth: 0
 
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
-
-      - name: Create and push tag
+      - name: Tag if version changed
         run: |
           set -euo pipefail
 
           tag="v$(uv version --short)"
+
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists, nothing to do"
+            exit 0
+          fi
+
           git tag "$tag"
           git push origin "$tag"

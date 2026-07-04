@@ -25,7 +25,8 @@
         let
           mkPackages = input: import input { inherit system; };
 
-          swaydm = pkgs.callPackage ./. {
+          swaydm = pkgs.callPackage ./package.nix {
+            version = (fromTOML (builtins.readFile ./pyproject.toml)).project.version;
             src = lib.fileset.toSource {
               root = ./.;
               fileset = lib.fileset.unions [

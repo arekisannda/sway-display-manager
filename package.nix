@@ -1,15 +1,14 @@
 {
   python3Packages,
   src,
+  version,
 }:
 
 with python3Packages;
 
 buildPythonPackage {
   pname = "sway-display-manager";
-  version = "0.0.3";
-
-  inherit src;
+  inherit src version;
 
   propagatedBuildInputs = [
     i3ipc
