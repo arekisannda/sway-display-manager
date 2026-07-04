@@ -15,18 +15,24 @@ permissions:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.inputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
         with:
           fetch-depth: 0
+          ref: main
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
 
       - name: Validate semver
         run: |
           set -euo pipefail
 
-          if ! grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${{ github.event.inputs.version }}"; then
-            echo "${{ github.event.inputs.version }} is not a valid semver string"
+          if ! grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "$VERSION"; then
+            echo "$VERSION is not a valid semver string"
             exit 1
           fi
 
@@ -36,32 +42,31 @@ jobs:
 
           tags_output=$(git ls-remote --tags origin)
 
-          if grep -q "refs/tags/v${{ github.event.inputs.version }}$" <<< "$tags_output"; then
-            echo "Tag v${{ github.event.inputs.version }} already exists"
+          if grep -q "refs/tags/v${VERSION}" <<< "$tags_output"; then
+            echo "Tag v${VERSION} already exists"
             exit 1
           fi
 
-      - name: Update Nix package version
-        run: |
-          set -euo pipefail
+      - name: Update pyproject.toml version
+        run: uv version "$VERSION"
 
-          sed -i -E 's/version = "[^"]*";$/version = "${{ github.event.inputs.version }}";/' default.nix
-          sed -i -E 's/^version = "[^"]*"$/version = "${{ github.event.inputs.version }}"/' pyproject.toml
+      - name: Update Nix package version
+        run: sed -i -E 's/version = "[^"]*";$/version = "$VERSION";/' default.nix
 
       - name: Open version bump PR
         id: bump_pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #v8.1.1
         with:
-          commit-message: "chore: bump version to ${{ github.event.inputs.version }}"
-          branch: release/v${{ github.event.inputs.version }}
-          title: "Release v${{ github.event.inputs.version }}"
+          sign-commits: true
+          commit-message: "chore: bump version to ${{ env.VERSION }}"
+          branch: release/v${{ env.VERSION }}
+          title: "Release v${{ env.VERSION }}"
           body: |
-            Automated version bump for release v${{ github.event.inputs.version }}.
+            Automated version bump for release v${{ env.VERSION }}.
           labels: release
 
       - name: Enable auto-merge
         if: steps.bump_pr.outputs.pull-request-number
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr merge ${{ steps.bump_pr.outputs.pull-request-number }} --auto --squash --delete-branch
+        run: gh pr merge ${{ steps.bump_pr.outputs.pull-request-number }} --auto --squash --delete-branch
