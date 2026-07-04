@@ -52,11 +52,11 @@ jobs:
         id: bump_pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 #v8.1.1
         with:
-          commit-message: "chore: bump version to ${{ steps.next_version.outputs.version }}"
-          branch: release/${{ steps.next_version.outputs.version }}
-          title: "Release ${{ steps.next_version.outputs.version }}"
+          commit-message: "chore: bump version to ${{ github.event.inputs.version }}"
+          branch: release/v${{ github.event.inputs.version }}
+          title: "Release v${{ github.event.inputs.version }}"
           body: |
-            Automated version bump for release ${{ steps.next_version.outputs.version }}.
+            Automated version bump for release v${{ github.event.inputs.version }}.
           labels: release
 
       - name: Enable auto-merge
