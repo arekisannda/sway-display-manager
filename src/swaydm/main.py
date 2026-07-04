@@ -35,6 +35,13 @@ def main():
         '-c', '--config', type=str, help='Specifies a config file.'
     )
 
+    daemon_parser = command_parser.add_parser(
+        "daemon", help="Run Sway display manager daemon"
+    )
+    daemon_parser.add_argument(
+        "--debug", action='store_true', help='Run in debug mode.'
+    )
+
     switch_parser = command_parser.add_parser(
         "switch", help="Switch to profile"
     )
@@ -43,11 +50,9 @@ def main():
     status_parser = command_parser.add_parser(
         "status", help="Show display manager status"
     )
-
     status_parser.add_argument(
         "-V", "--verbose", action='store_true', help='Enable verbose output.'
     )
-
     status_parser.add_argument(
         "--json", action='store_true', help='Output in JSON format.'
     )
@@ -65,7 +70,6 @@ def main():
         "toggle", help="Toggle display manager auto apply"
     )
 
-    command_parser.add_parser("daemon", help="Run Sway display manager daemon")
     command_parser.add_parser("list", help="List available profiles")
     command_parser.add_parser("reload", help="Reload configuration file")
 
@@ -97,7 +101,7 @@ def main():
         case "daemon":
             config_path = config.find_config_file(arguments.config)
             ipc.start_server(command.command_handler)
-            manager.start_watcher(config_path)
+            manager.start_watcher(config_file_path=config_path, debug=arguments.debug)
         case _:
             arguments_parser.print_help()
             code.exit_with_status(code.Code.ERROR)
